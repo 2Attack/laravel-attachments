@@ -94,6 +94,20 @@ class Attachment extends Model implements AttachmentContract
     }
 
 
+    public static function attachAll($ids, $model)
+    {
+
+        if (!is_array($ids)) {
+            return null;
+        }
+
+        collect($ids)->map(function ($id) use ($model) {
+            self::attach($id, $model);
+        });
+
+    }
+
+
     /**
      * Creates a file object from a file an uploaded file.
      *
