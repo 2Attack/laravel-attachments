@@ -10,9 +10,8 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 trait HasAttachment
 {
-
     /**
-     * Get the attachments relation morphed to the current model class
+     * Get the attachments relation morphed to the current model class.
      *
      * @return MorphMany
      */
@@ -21,9 +20,8 @@ trait HasAttachment
         return $this->morphMany(get_class(app(AttachmentContract::class)), 'model');
     }
 
-
     /**
-     * Find an attachment by key
+     * Find an attachment by key.
      *
      * @param string $key
      *
@@ -34,9 +32,8 @@ trait HasAttachment
         return $this->attachments->where('key', $key)->first();
     }
 
-
     /**
-     * Find all attachments with the given
+     * Find all attachments with the given.
      *
      * @param string $group
      *
@@ -47,17 +44,17 @@ trait HasAttachment
         return $this->attachments->where('group', $group);
     }
 
-
     /**
      * @param UploadedFile|string $fileOrPath
-     * @param array               $options Set attachment options : title, description, key, disk
+     * @param array               $options    Set attachment options : title, description, key, disk
+     *
+     * @throws \Exception
      *
      * @return Attachment|null
-     * @throws \Exception
      */
     public function attach($fileOrPath, $options = [])
     {
-        if ( ! is_array($options)) {
+        if (!is_array($options)) {
             throw new \Exception('Attachment options must be an array');
         }
 
@@ -67,13 +64,13 @@ trait HasAttachment
 
         $attributes = Arr::only($options, config('attachments.attributes'));
 
-        if ( ! empty($attributes['key']) && $attachment = $this->attachments()->where('key', $attributes['key'])->first()) {
+        if (!empty($attributes['key']) && $attachment = $this->attachments()->where('key', $attributes['key'])->first()) {
             $attachment->delete();
         }
 
         /** @var Attachment $attachment */
         $attachment = app(AttachmentContract::class)->fill($attributes);
-        $attachment->filepath = ! empty($attributes['filepath']) ? $attributes['filepath'] : null;
+        $attachment->filepath = !empty($attributes['filepath']) ? $attributes['filepath'] : null;
 
         if (is_resource($fileOrPath)) {
             if (empty($options['filename'])) {

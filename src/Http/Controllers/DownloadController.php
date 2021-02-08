@@ -10,20 +10,17 @@ use Lang;
 
 class DownloadController extends Controller
 {
-
     /**
-     * Attachment model
+     * Attachment model.
      *
      * @var AttachmentContract
      */
     protected $model;
 
-
     public function __construct(AttachmentContract $model)
     {
         $this->model = $model;
     }
-
 
     public function download($id, Request $request)
     {
@@ -32,7 +29,7 @@ class DownloadController extends Controller
         if ($file = $this->model->where('uuid', $id)->first()) {
             try {
                 /** @var \Bnb\Laravel\Attachments\Attachment $file */
-                if ( ! $file->output($disposition)) {
+                if (!$file->output($disposition)) {
                     abort(403, Lang::get('attachments::messages.errors.access_denied'));
                 }
             } catch (FileNotFoundException $e) {

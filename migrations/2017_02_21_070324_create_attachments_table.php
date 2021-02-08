@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateAttachmentsTable extends Migration
 {
-
     /**
      * Run the migrations.
      *
@@ -32,7 +31,6 @@ class CreateAttachmentsTable extends Migration
             $table->timestamps();
         });
     }
-
 
     /**
      * Reverse the migrations.
