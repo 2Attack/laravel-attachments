@@ -35,12 +35,9 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  * @property string url_inline   the public URL from the storage with inline switch (read-only mutator)
  * @property string proxy_url          the public URL using app as proxy (read-only mutator)
  * @property string proxy_url_inline   the public URL using app as proxy with inline switch (read-only mutator)
- *
- * @package   Bnb\Laravel\Attachments
  */
 class Attachment extends Model implements AttachmentContract
 {
-
     protected $table = 'attachments';
 
     protected $guarded = ['filepath'];
@@ -56,7 +53,7 @@ class Attachment extends Model implements AttachmentContract
      */
 
     /**
-     * Shortcut method to bind an attachment to a model
+     * Shortcut method to bind an attachment to a model.
      *
      * @param string $uuid
      * @param Model  $model   a model that uses HasAttachment
@@ -69,7 +66,7 @@ class Attachment extends Model implements AttachmentContract
         /** @var Attachment $attachment */
         $attachment = self::where('uuid', $uuid)->first();
 
-        if ( ! $attachment) {
+        if (!$attachment) {
             return null;
         }
 
@@ -93,10 +90,8 @@ class Attachment extends Model implements AttachmentContract
         return $attachment->model()->associate($model)->save() ? $attachment : null;
     }
 
-
     public static function attachAll($ids, $model)
     {
-
         if (!is_array($ids)) {
             return null;
         }
@@ -104,9 +99,7 @@ class Attachment extends Model implements AttachmentContract
         collect($ids)->map(function ($id) use ($model) {
             self::attach($id, $model);
         });
-
     }
-
 
     /**
      * Creates a file object from a file an uploaded file.
@@ -126,12 +119,11 @@ class Attachment extends Model implements AttachmentContract
         $this->filename = $uploadedFile->getClientOriginalName();
         $this->filesize = method_exists($uploadedFile, 'getSize') ? $uploadedFile->getSize() : $uploadedFile->getClientSize();
         $this->filetype = $uploadedFile->getMimeType();
-        $this->filepath = $this->filepath ?: ($this->getStorageDirectory() . $this->getPartitionDirectory() . $this->getDiskName());
+        $this->filepath = $this->filepath ?: ($this->getStorageDirectory().$this->getPartitionDirectory().$this->getDiskName());
         $this->putFile($uploadedFile->getRealPath(), $this->filepath);
 
         return $this;
     }
-
 
     /**
      * Creates a file object from a file on the disk.
@@ -153,15 +145,14 @@ class Attachment extends Model implements AttachmentContract
         $this->filename = $file->getFilename();
         $this->filesize = $file->getSize();
         $this->filetype = $file->getMimeType();
-        $this->filepath = $this->filepath ?: ($this->getStorageDirectory() . $this->getPartitionDirectory() . $this->getDiskName());
+        $this->filepath = $this->filepath ?: ($this->getStorageDirectory().$this->getPartitionDirectory().$this->getDiskName());
         $this->putFile($file->getRealPath(), $this->filepath);
 
         return $this;
     }
 
-
     /**
-     * Creates a file object from a stream
+     * Creates a file object from a stream.
      *
      * @param resource $stream   source stream
      * @param string   $filename the resource filename
@@ -180,7 +171,7 @@ class Attachment extends Model implements AttachmentContract
         $driver = Storage::disk($this->disk);
 
         $this->filename = $filename;
-        $this->filepath = $this->filepath ?: ($this->getStorageDirectory() . $this->getPartitionDirectory() . $this->getDiskName());
+        $this->filepath = $this->filepath ?: ($this->getStorageDirectory().$this->getPartitionDirectory().$this->getDiskName());
 
         $driver->putStream($this->filepath, $stream);
 
@@ -195,7 +186,7 @@ class Attachment extends Model implements AttachmentContract
      */
 
     /**
-     * Relationship: model
+     * Relationship: model.
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
@@ -203,7 +194,6 @@ class Attachment extends Model implements AttachmentContract
     {
         return $this->morphTo();
     }
-
 
     /**
      * Register an outputting model event with the dispatcher.
@@ -217,9 +207,8 @@ class Attachment extends Model implements AttachmentContract
         static::registerModelEvent('outputting', $callback);
     }
 
-
     /**
-     * Setup behaviors
+     * Setup behaviors.
      */
     protected static function boot()
     {
@@ -228,14 +217,12 @@ class Attachment extends Model implements AttachmentContract
         if (config('attachments.behaviors.cascade_delete')) {
             static::deleting(function ($attachment) {
                 /** @var Attachment $attachment */
-
                 $attachment->deleteFile();
             });
         }
 
         static::creating(function ($attachment) {
             /** @var Attachment $attachment */
-
             if (empty($attachment->uuid)) {
                 throw new \Exception('Failed to generated an UUID value');
             }
@@ -246,10 +233,9 @@ class Attachment extends Model implements AttachmentContract
         });
     }
 
-
     public function getUuidAttribute()
     {
-        if ( ! empty($this->attributes['uuid'])) {
+        if (!empty($this->attributes['uuid'])) {
             return $this->attributes['uuid'];
         }
 
@@ -259,7 +245,7 @@ class Attachment extends Model implements AttachmentContract
             $generator = explode('@', $generator, 2);
         }
 
-        if ( ! is_array($generator) && function_exists($generator)) {
+        if (!is_array($generator) && function_exists($generator)) {
             return $this->uuid = call_user_func($generator);
         }
 
@@ -270,18 +256,15 @@ class Attachment extends Model implements AttachmentContract
         throw new \Exception('Missing UUID provider configuration for attachments');
     }
 
-
     public function getExtensionAttribute()
     {
         return $this->getExtension();
     }
 
-
     public function getPathAttribute()
     {
         return pathinfo($this->filepath, PATHINFO_DIRNAME);
     }
-
 
     public function getUrlAttribute()
     {
@@ -292,7 +275,6 @@ class Attachment extends Model implements AttachmentContract
         }
     }
 
-
     public function getUrlInlineAttribute()
     {
         if ($this->isLocalStorage()) {
@@ -302,40 +284,36 @@ class Attachment extends Model implements AttachmentContract
         }
     }
 
-
     public function getProxyUrlAttribute()
     {
         return route('attachments.download', [
-            'id' => $this->uuid,
+            'id'   => $this->uuid,
             'name' => $this->extension ?
-                Str::slug(substr($this->filename, 0, -1 * strlen($this->extension) - 1)) . '.' . $this->extension :
-                Str::slug($this->filename)
+                Str::slug(substr($this->filename, 0, -1 * strlen($this->extension) - 1)).'.'.$this->extension :
+                Str::slug($this->filename),
         ]);
     }
-
 
     public function getProxyUrlInlineAttribute()
     {
         return route('attachments.download', [
-            'id' => $this->uuid,
+            'id'   => $this->uuid,
             'name' => $this->extension ?
-                Str::slug(substr($this->filename, 0, -1 * strlen($this->extension) - 1)) . '.' . $this->extension :
+                Str::slug(substr($this->filename, 0, -1 * strlen($this->extension) - 1)).'.'.$this->extension :
                 Str::slug($this->filename),
             'disposition' => 'inline',
         ]);
     }
-
 
     public function toArray()
     {
         $attributes = parent::toArray();
 
         return array_merge($attributes, [
-            'url' => $this->url,
+            'url'        => $this->url,
             'url_inline' => $this->url_inline,
         ]);
     }
-
 
     /*
      * File handling
@@ -347,17 +325,16 @@ class Attachment extends Model implements AttachmentContract
             return false;
         }
 
-        header("Content-type: " . $this->filetype);
-        header('Content-Disposition: ' . $disposition . '; filename="' . $this->filename . '"');
+        header('Content-type: '.$this->filetype);
+        header('Content-Disposition: '.$disposition.'; filename="'.$this->filename.'"');
         header('Cache-Control: private');
         header('Cache-Control: no-store, no-cache, must-revalidate');
         header('Cache-Control: pre-check=0, post-check=0, max-age=0');
         header('Accept-Ranges: bytes');
-        header('Content-Length: ' . $this->filesize);
+        header('Content-Length: '.$this->filesize);
 
         exit($this->getContents());
     }
-
 
     /**
      * Get file contents from storage device.
@@ -367,9 +344,8 @@ class Attachment extends Model implements AttachmentContract
         return $this->storageCommand('get', $this->filepath);
     }
 
-
     /**
-     * Get a metadata value by key with dot notation
+     * Get a metadata value by key with dot notation.
      *
      * @param string $key     The metadata key, supports dot notation
      * @param mixed  $default The default value to return if key is not found
@@ -385,9 +361,8 @@ class Attachment extends Model implements AttachmentContract
         return Arr::get($this->metadata, $key, $default);
     }
 
-
     /**
-     * Saves a file
+     * Saves a file.
      *
      * @param string $sourcePath An absolute local path to a file name to read from.
      * @param string $filePath   A storage file path to save to.
@@ -396,34 +371,32 @@ class Attachment extends Model implements AttachmentContract
      */
     protected function putFile($sourcePath, $filePath = null)
     {
-        if ( ! $filePath) {
+        if (!$filePath) {
             $filePath = $this->filepath;
         }
 
-        if ( ! $this->isLocalStorage()) {
+        if (!$this->isLocalStorage()) {
             return $this->copyToStorage($sourcePath, $filePath);
         }
 
-        $destinationPath = $this->getLocalRootPath() . '/' . pathinfo($filePath, PATHINFO_DIRNAME) . '/';
+        $destinationPath = $this->getLocalRootPath().'/'.pathinfo($filePath, PATHINFO_DIRNAME).'/';
 
         if (
-            ! FileHelper::isDirectory($destinationPath) &&
-            ! FileHelper::makeDirectory($destinationPath, 0777, true, true) &&
-            ! FileHelper::isDirectory($destinationPath)
+            !FileHelper::isDirectory($destinationPath) &&
+            !FileHelper::makeDirectory($destinationPath, 0777, true, true) &&
+            !FileHelper::isDirectory($destinationPath)
         ) {
             trigger_error(error_get_last()['message'], E_USER_WARNING);
         }
 
-        return FileHelper::copy($sourcePath, $destinationPath . basename($filePath));
+        return FileHelper::copy($sourcePath, $destinationPath.basename($filePath));
     }
-
 
     protected function deleteFile()
     {
         $this->storageCommand('delete', $this->filepath);
         $this->deleteEmptyDirectory($this->path);
     }
-
 
     /**
      * Generates a disk name from the supplied file name.
@@ -437,9 +410,8 @@ class Attachment extends Model implements AttachmentContract
         $ext = strtolower($this->getExtension());
         $name = str_replace('.', '', $this->uuid);
 
-        return $this->filepath = $ext !== null ? $name . '.' . $ext : $name;
+        return $this->filepath = $ext !== null ? $name.'.'.$ext : $name;
     }
-
 
     /**
      * Returns the file extension.
@@ -449,29 +421,25 @@ class Attachment extends Model implements AttachmentContract
         return FileHelper::extension($this->filename);
     }
 
-
     /**
-     * Generate a temporary url at which the current file can be downloaded until $expire
+     * Generate a temporary url at which the current file can be downloaded until $expire.
      *
      * @param Carbon $expire
-     * @param bool $inline
+     * @param bool   $inline
      *
      * @return string
      */
     public function getTemporaryUrl(Carbon $expire, $inline = false)
     {
-
         $payload = Crypt::encryptString(collect([
-            'id' => $this->uuid,
-            'expire' => $expire->getTimestamp(),
-            'shared_at' => Carbon::now()->getTimestamp(),
+            'id'          => $this->uuid,
+            'expire'      => $expire->getTimestamp(),
+            'shared_at'   => Carbon::now()->getTimestamp(),
             'disposition' => $inline ? 'inline' : 'attachment',
         ])->toJson());
 
         return route('attachments.download-shared', ['token' => $payload]);
-
     }
-
 
     /**
      * Generates a partition for the file.
@@ -481,18 +449,16 @@ class Attachment extends Model implements AttachmentContract
      */
     protected function getPartitionDirectory()
     {
-        return implode('/', array_slice(str_split($this->uuid, 3), 0, 3)) . '/';
+        return implode('/', array_slice(str_split($this->uuid, 3), 0, 3)).'/';
     }
-
 
     /**
      * Define the internal storage path, override this method to define.
      */
     protected function getStorageDirectory()
     {
-        return config('attachments.storage_directory.prefix', 'attachments') . '/';
+        return config('attachments.storage_directory.prefix', 'attachments').'/';
     }
-
 
     /**
      * If working with local storage, determine the absolute local path.
@@ -501,9 +467,8 @@ class Attachment extends Model implements AttachmentContract
      */
     protected function getLocalRootPath()
     {
-        return storage_path() . '/app';
+        return storage_path().'/app';
     }
-
 
     /**
      * Returns true if the storage engine is local.
@@ -515,7 +480,6 @@ class Attachment extends Model implements AttachmentContract
         return $this->disk == 'local';
     }
 
-
     /**
      * Returns true if a directory contains no files.
      *
@@ -525,16 +489,15 @@ class Attachment extends Model implements AttachmentContract
      */
     protected function isDirectoryEmpty($dir)
     {
-        if ( ! $dir || ! $this->storageCommand('exists', $dir)) {
+        if (!$dir || !$this->storageCommand('exists', $dir)) {
             return null;
         }
 
         return count($this->storageCommand('allFiles', $dir)) === 0;
     }
 
-
     /**
-     * Copy the local file to Storage
+     * Copy the local file to Storage.
      *
      * @param string $localPath
      * @param string $storagePath
@@ -546,7 +509,6 @@ class Attachment extends Model implements AttachmentContract
         return Storage::disk($this->disk)->put($storagePath, FileHelper::get($localPath));
     }
 
-
     /**
      * Checks if directory is empty then deletes it,
      * three levels up to match the partition directory.
@@ -557,7 +519,7 @@ class Attachment extends Model implements AttachmentContract
      */
     protected function deleteEmptyDirectory($dir = null)
     {
-        if ( ! $this->isDirectoryEmpty($dir)) {
+        if (!$this->isDirectoryEmpty($dir)) {
             return;
         }
 
@@ -565,7 +527,7 @@ class Attachment extends Model implements AttachmentContract
 
         $dir = dirname($dir);
 
-        if ( ! $this->isDirectoryEmpty($dir)) {
+        if (!$this->isDirectoryEmpty($dir)) {
             return;
         }
 
@@ -573,13 +535,12 @@ class Attachment extends Model implements AttachmentContract
 
         $dir = dirname($dir);
 
-        if ( ! $this->isDirectoryEmpty($dir)) {
+        if (!$this->isDirectoryEmpty($dir)) {
             return;
         }
 
         $this->storageCommand('deleteDirectory', $dir);
     }
-
 
     /**
      * Calls a method against File or Storage depending on local storage.
@@ -601,11 +562,11 @@ class Attachment extends Model implements AttachmentContract
             $interface = 'File';
             $path = $this->getLocalRootPath();
             $args = array_map(function ($value) use ($path) {
-                return $path . '/' . $value;
+                return $path.'/'.$value;
             }, $args);
         } else {
             if (substr($filepath, 0, 1) !== '/') {
-                $args[0] = $filepath = '/' . $filepath;
+                $args[0] = $filepath = '/'.$filepath;
             }
 
             $interface = Storage::disk($this->disk);
@@ -613,7 +574,6 @@ class Attachment extends Model implements AttachmentContract
 
         return forward_static_call_array([$interface, $command], $args);
     }
-
 
     public function getConnectionName()
     {

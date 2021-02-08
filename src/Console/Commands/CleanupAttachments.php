@@ -1,6 +1,6 @@
 <?php
 /**
- * laravel
+ * laravel.
  *
  * @author    Jérémy GAULIN <jeremy@bnb.re>
  * @copyright 2017 - B&B Web Expertise
@@ -18,7 +18,7 @@ use Symfony\Component\Console\Input\InputOption;
 class CleanupAttachments extends Command
 {
     /**
-     * Attachment model
+     * Attachment model.
      *
      * @var AttachmentContract
      */
@@ -34,11 +34,14 @@ class CleanupAttachments extends Command
 
         $this->setDescription(Lang::get('attachments::messages.console.cleanup_description'));
 
-        $this->getDefinition()->addOption(new InputOption('since', '-s', InputOption::VALUE_OPTIONAL,
-
-        Lang::get('attachments::messages.console.cleanup_option_since'), 1440));
+        $this->getDefinition()->addOption(new InputOption(
+            'since',
+            '-s',
+            InputOption::VALUE_OPTIONAL,
+            Lang::get('attachments::messages.console.cleanup_option_since'),
+            1440
+        ));
     }
-
 
     public function handle()
     {

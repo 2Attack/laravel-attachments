@@ -14,7 +14,7 @@ use Lang;
 class ShareController extends Controller
 {
     /**
-     * Attachment model
+     * Attachment model.
      *
      * @var AttachmentContract
      */
@@ -48,10 +48,10 @@ class ShareController extends Controller
 
         if ($file = $this->model->where('uuid', $id)->first()) {
             try {
-            /** @var AttachmentContract $file */
-            if ( ! $file->output($disposition)) {
-                abort(403, Lang::get('attachments::messages.errors.access_denied'));
-            }
+                /** @var AttachmentContract $file */
+                if (!$file->output($disposition)) {
+                    abort(403, Lang::get('attachments::messages.errors.access_denied'));
+                }
             } catch (FileNotFoundException $e) {
                 abort(404, Lang::get('attachments::messages.errors.file_not_found'));
             }

@@ -1,8 +1,8 @@
 <?php
 
 Route::group([
-    'prefix' => config('attachments.routes.prefix'),
-    'middleware' => config('attachments.routes.middleware')
+    'prefix'     => config('attachments.routes.prefix'),
+    'middleware' => config('attachments.routes.middleware'),
 ], function () {
     Route::get(config('attachments.routes.shared_pattern'), 'Bnb\Laravel\Attachments\Http\Controllers\ShareController@download')
         ->where('token', '.+')

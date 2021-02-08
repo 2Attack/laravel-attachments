@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 class AlterAttachmentsTableAddGroupColumn extends Migration
 {
-
     /**
      * Run the migrations.
      *
@@ -20,7 +19,6 @@ class AlterAttachmentsTableAddGroupColumn extends Migration
             });
         }
     }
-
 
     /**
      * Reverse the migrations.
